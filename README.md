@@ -1,4 +1,4 @@
-#Laravel-Docker
+# Laravel-Docker
 A simple boilerplate for creating a Laravel application in a Docker environment that uses HTTPS.
 
 Stack:
