@@ -1,0 +1,67 @@
+version: '3'
+
+networks:
+    laravel-docker-network:
+        driver: bridge
+
+services:
+    php:
+        build: build/php
+        container_name: laravel_docker_php
+        volumes:
+            - $LARAVEL_DOCKER_APP_ROOT:/var/www/laravel-docker-app
+        ports:
+            - "9000:9000"
+        depends_on: 
+            - mysql
+        networks:
+            - laravel-docker-network
+
+    mysql:
+        image: mysql:5.7
+        container_name: laravel_docker_mysql
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "4306:3306"
+        volumes:
+            - $LARAVEL_DOCKER_MYSQL:/var/lib/mysql
+        environment: 
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: laravel-user
+            MYSQL_PASSWORD: password
+            MYSQL_ROOT_PASSWORD: password
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        networks: 
+            - laravel-docker-network
+        
+    nginx:
+        build: build/nginx
+        container_name: laravel_docker_nginx
+        restart: always
+        ports:
+            - 443:443
+        depends_on:
+            - php
+            - mysql
+        volumes:
+            - $LARAVEL_DOCKER_WEB_ROOT:/var/www/laravel-docker-app/public
+        networks:
+            - laravel-docker-network
+            
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: laravel_docker_pma
+        restart: always
+        environment:
+            PMA_HOST: mysql
+            PMA_USER: root
+            PMA_PASSWORD: password
+        ports:
+            - "8080:80"
+        networks: 
+            - laravel-docker-network
+
+    
+    
